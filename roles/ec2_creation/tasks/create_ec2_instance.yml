@@ -1,0 +1,39 @@
+---
+- name: Get EC2 instance information
+  debug:
+    msg: "{{ instance_values }}"
+
+- name: Create MCAT EC2 instance
+  ec2:
+    region: "{{ instance_values['region'] }}"
+    key_name: "{{ instance_values['key_pair'] }}"
+    group_id: "{{ instance_values['security_group'] }}"
+    instance_type: "{{ instance_values['instance_type'] }}"
+    image: "{{ instance_values['image_id'] }}"
+    vpc_subnet_id: "{{ instance_values['vpc_id'] }}"
+    instance_profile_name: "{{ instance_values['instance_profile'] }}"
+    assign_public_ip: no
+    count: 1
+    wait: yes
+    instance_tags:
+      Name: "{{ instance_values['name'] }}"
+  when: ec2_instances.instances[instance_values['name']]|default("") == ""
+  register: ec2_info
+
+- name: Wait for instances to listen on port 22
+  wait_for:
+    state: started
+    host: "{{ ec2_info.instances[0].private_dns_name }}"
+    port: 22
+  when: ec2_info|changed
+
+- name: Add new instance to ec2hosts group
+  add_host:
+    hostname: "{{ ec2_info.instances[0].private_ip }}"
+    groupname: MCATec2hosts
+    instance_id: "{{ ec2_info.instances[0].id }}"
+  when: ec2_info|changed
+
+- name: Get ec2_info information
+  debug:
+    msg: "{{ ec2_info }}"

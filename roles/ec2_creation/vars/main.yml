@@ -1,0 +1,29 @@
+---
+default_values:
+  instance_type: "t2.micro"
+  region: "us-east-1"
+  key_pair: "myNVKeyPair"
+  image_id: "ami-55ef662f" # CentOS& image with Encrypted volume
+  security_group_id: "sg-0bb9207e"
+  vpc_id: "subnet-8efbb5a2"
+  instance_profile: "myec2role"
+  name: "Services"
+
+instances:
+  development:
+    dev.example.com:
+      name: "dev.example.com"
+
+  staging:
+    staging.example.com:
+      name: "staging.example.com"
+
+instance_values:
+  name: "{{ instances[rails_env][site]['name'] | default(default_values['name']) }}"
+  instance_type: "{{ instances[rails_env][site]['instance_type'] | default(default_values['instance_type']) }}"
+  region: "{{ instances[rails_env][site]['region'] | default(default_values['region']) }}"
+  key_pair: "{{ instances[rails_env][site]['key_pair'] | default(default_values['key_pair']) }}"
+  image_id: "{{ instances[rails_env][site]['image_id'] | default(default_values['image_id']) }}"
+  security_group: "{{ instances[rails_env][site]['security_group_id'] | default(default_values['security_group_id']) }}"
+  vpc_id: "{{ instances[rails_env][site]['vpc_id'] | default(default_values['vpc_id']) }}"
+  instance_profile: "{{ instances[rails_env][site]['instance_profile'] | default(default_values['instance_profile']) }}"
