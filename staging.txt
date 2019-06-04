@@ -1,2 +1,2 @@
 [staging]
-staging.example.com
+staging.exampleiscom
